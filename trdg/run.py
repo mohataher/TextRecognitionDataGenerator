@@ -421,12 +421,7 @@ def main():
         from bidi.algorithm import get_display
 
         arabic_reshaper = ArabicReshaper()
-        strings = [
-            " ".join(
-                [get_display(arabic_reshaper.reshape(w)) for w in s.split(" ")[::-1]]
-            )
-            for s in strings
-        ]
+        strings = [s for s in strings]
     if args.case == "upper":
         strings = [x.upper() for x in strings]
     if args.case == "lower":
