@@ -149,7 +149,7 @@ class GeneratorFromStrings:
         rtl_strings = []
         for string in strings:
             reshaped_string = rtl_shaper.reshape(string)
-            rtl_strings.append(get_display(reshaped_string))
+            rtl_strings.append(reshaped_string)
         return rtl_strings
 
 
