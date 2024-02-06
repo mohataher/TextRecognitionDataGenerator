@@ -138,6 +138,7 @@ class GeneratorFromStrings:
                 self.stroke_fill,
                 self.image_mode,
                 self.output_bboxes,
+                self.rtl,
             ),
             self.orig_strings[(self.generated_count - 1) % len(self.orig_strings)]
             if self.rtl

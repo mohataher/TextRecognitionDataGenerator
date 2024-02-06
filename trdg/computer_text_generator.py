@@ -17,6 +17,16 @@ TH_TONE_MARKS = [
 ]
 TH_UNDER_VOWELS = ["0xe38", "0xe39", "\0xe3A"]
 TH_UPPER_VOWELS = ["0xe31", "0xe34", "0xe35", "0xe36", "0xe37"]
+AR_HARAKAT = [
+    '\u064E',  # FATHA -  َ
+    '\u064F',  # DHAMMA -  ُ
+    '\u0650',  # KASRA -  ِ
+    '\u0652',  # SUKUN -  ْ
+    '\u0651',  # SHADDA -  ّ
+    '\u0653',  # MADDAH_ABOVE -  ٓ
+    '\u0654',  # HAMZA_ABOVE -  ٔ
+    '\u0655'   # HAMZA_BELOW -  ٕ
+]
 
 
 def generate(
@@ -31,6 +41,7 @@ def generate(
     word_split: bool,
     stroke_width: int = 0,
     stroke_fill: str = "#282828",
+    rtl: bool = False,
 ) -> Tuple:
     if orientation == 0:
         return _generate_horizontal_text(
@@ -44,6 +55,7 @@ def generate(
             word_split,
             stroke_width,
             stroke_fill,
+            rtl,
         )
     elif orientation == 1:
         return _generate_vertical_text(
@@ -56,6 +68,7 @@ def generate(
             fit,
             stroke_width,
             stroke_fill,
+            rtl,
         )
     else:
         raise ValueError("Unknown orientation " + str(orientation))
@@ -64,7 +77,7 @@ def generate(
 def _compute_character_width(image_font: ImageFont, character: str) -> int:
     if len(character) == 1 and (
         "{0:#x}".format(ord(character))
-        in TH_TONE_MARKS + TH_UNDER_VOWELS + TH_UNDER_VOWELS + TH_UPPER_VOWELS
+        in TH_TONE_MARKS + TH_UNDER_VOWELS + TH_UNDER_VOWELS + TH_UPPER_VOWELS + AR_HARAKAT
     ):
         return 0
     # Casting as int to preserve the old behavior
@@ -82,6 +95,7 @@ def _generate_horizontal_text(
     word_split: bool,
     stroke_width: int = 0,
     stroke_fill: str = "#282828",
+    rtl: bool = False,
 ) -> Tuple:
     image_font = ImageFont.truetype(font=font, size=font_size)
 
@@ -104,7 +118,9 @@ def _generate_horizontal_text(
     if not word_split:
         text_width += character_spacing * (len(text) - 1)
 
-    text_height = max([get_text_height(image_font, p) for p in splitted_text])
+    margin = 30  # usually get_text_height() is not accurate for some fonts in Arabic
+    text_heights_ = [get_text_height(image_font, p) for p in splitted_text]
+    text_height = max(text_heights_) + margin
 
     txt_img = Image.new("RGBA", (text_width, text_height), (0, 0, 0, 0))
     txt_mask = Image.new("RGB", (text_width, text_height), (0, 0, 0))
@@ -130,24 +146,41 @@ def _generate_horizontal_text(
         rnd.randint(min(stroke_c1[1], stroke_c2[1]), max(stroke_c1[1], stroke_c2[1])),
         rnd.randint(min(stroke_c1[2], stroke_c2[2]), max(stroke_c1[2], stroke_c2[2])),
     )
-
-    for i, p in enumerate(splitted_text):
+    if rtl:
         txt_img_draw.text(
-            (sum(piece_widths[0:i]) + i * character_spacing * int(not word_split), 0),
-            p,
+            (0, margin/2),
+            splitted_text,
             fill=fill,
             font=image_font,
             stroke_width=stroke_width,
             stroke_fill=stroke_fill,
         )
         txt_mask_draw.text(
-            (sum(piece_widths[0:i]) + i * character_spacing * int(not word_split), 0),
-            p,
-            fill=((i + 1) // (255 * 255), (i + 1) // 255, (i + 1) % 255),
+            (0, margin/2),
+            splitted_text,
+            fill=((len(splitted_text) + 1) // (255 * 255), (len(splitted_text) + 1) // 255, (len(splitted_text) + 1) % 255),
             font=image_font,
             stroke_width=stroke_width,
             stroke_fill=stroke_fill,
         )
+    else:
+        for i, p in enumerate(splitted_text):
+            txt_img_draw.text(
+                (sum(piece_widths[0:i]) + i * character_spacing * int(not word_split), 0),
+                p,
+                fill=fill,
+                font=image_font,
+                stroke_width=stroke_width,
+                stroke_fill=stroke_fill,
+            )
+            txt_mask_draw.text(
+                (sum(piece_widths[0:i]) + i * character_spacing * int(not word_split), 0),
+                p,
+                fill=((i + 1) // (255 * 255), (i + 1) // 255, (i + 1) % 255),
+                font=image_font,
+                stroke_width=stroke_width,
+                stroke_fill=stroke_fill,
+            )
 
     if fit:
         return txt_img.crop(txt_img.getbbox()), txt_mask.crop(txt_img.getbbox())
@@ -165,6 +198,7 @@ def _generate_vertical_text(
     fit: bool,
     stroke_width: int = 0,
     stroke_fill: str = "#282828",
+    rtl: bool = False
 ) -> Tuple:
     image_font = ImageFont.truetype(font=font, size=font_size)
 
