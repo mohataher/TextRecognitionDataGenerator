@@ -18,14 +18,14 @@ TH_TONE_MARKS = [
 TH_UNDER_VOWELS = ["0xe38", "0xe39", "\0xe3A"]
 TH_UPPER_VOWELS = ["0xe31", "0xe34", "0xe35", "0xe36", "0xe37"]
 AR_HARAKAT = [
-    '\u064E',  # FATHA -  َ
-    '\u064F',  # DHAMMA -  ُ
-    '\u0650',  # KASRA -  ِ
-    '\u0652',  # SUKUN -  ْ
-    '\u0651',  # SHADDA -  ّ
-    '\u0653',  # MADDAH_ABOVE -  ٓ
-    '\u0654',  # HAMZA_ABOVE -  ٔ
-    '\u0655'   # HAMZA_BELOW -  ٕ
+    "0x64E",  # FATHA - َ
+    "0x64F",  # DHAMMA - ُ
+    "0x650",  # KASRA - ِ
+    "0x652",  # SUKUN - ْ
+    "0x651",  # SHADDA - ّ
+    "0x653",  # MADDAH_ABOVE - ٓ
+    "0x654",  # HAMZA_ABOVE - ٔ
+    "0x655"   # HAMZA_BELOW - ٕ
 ]
 
 
